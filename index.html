@@ -118,39 +118,41 @@ let currentSchedule = [];
 let photoUrls = [];
 let currentPhotoIdx = 0;
 
-// ── 页面加载：尝试从 ESP32-CAM 拉取已有照片列表 ──
-function loadExistingPhotos() {
+// ── 页面加载：从 ESP32-CAM 探测已有照片 ──
+async function loadExistingPhotos() {
   const camHost = `http://192.168.43.122`;
-  // 尝试逐个检查槽位照片是否存在（最多 10 张）
-  let pending = 0;
+  let found = [];
   for (let slot = 0; slot < 10; slot++) {
     const url = `${camHost}/photo_${slot}.jpg`;
-    const img = new Image();
-    const idx = slot;
-    img.onload = function() {
-      // 照片存在，加入列表
-      if (!photoUrls.includes(url)) {
-        photoUrls.push(url);
-      }
-    };
-    img.onerror = function() {
-      // 照片不存在，忽略
-    };
-    img.onloadend = function() {
-      pending--;
-      if (pending <= 0) {
-        // 全部检查完毕，排序并显示
-        photoUrls.sort();
-        if (photoUrls.length > 0) renderPhotos();
-      }
-    };
-    pending++;
-    img.src = url;
+    try {
+      const resp = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+      // no-cors 模式下无法读 status，但请求本身不发出去才会抛异常
+      // 实际用 Image 探测更准确
+    } catch(e) { continue; }
   }
-  // 超时兜底（3 秒后无论是否加载完都渲染）
-  setTimeout(() => {
-    if (pending > 0) { pending = 0; if (photoUrls.length > 0) renderPhotos(); }
-  }, 3000);
+
+  // 降级方案：用 Image 逐个试（仅局域网环境有效）
+  const results = await Promise.allSettled(
+    Array.from({length:10}, (_, slot) => {
+      return new Promise((resolve, reject) => {
+        const url = `${camHost}/photo_${slot}.jpg`;
+        const img = new Image();
+        const timer = setTimeout(() => { img.src = ''; reject('timeout'); }, 1500);
+        img.onload = () => { clearTimeout(timer); resolve(url); };
+        img.onerror = () => { clearTimeout(timer); reject('not found'); };
+        img.src = url;
+      });
+    })
+  );
+
+  results.forEach(r => {
+    if (r.status === 'fulfilled' && !photoUrls.includes(r.value)) {
+      photoUrls.push(r.value);
+    }
+  });
+
+  photoUrls.sort();
+  if (photoUrls.length > 0) renderPhotos();
 }
 
 // ── MQTT 连接 ──
