@@ -118,19 +118,40 @@ let currentSchedule = [];
 let photoUrls = [];
 let currentPhotoIdx = 0;
 
-// ── 页面加载：从 ESP32-CAM /list.json 获取 FIFO 顺序照片 ──
+// ── 页面加载：从 ESP32-CAM 恢复照片 ──
 async function loadExistingPhotos() {
   const camHost = `http://192.168.43.122`;
+  // 方法 1: fetch /list.json（仅本地 HTTP 打开网页时有效）
   try {
     const resp = await fetch(`${camHost}/list.json`);
-    if (!resp.ok) return;
-    const names = await resp.json();  // 已是老→新顺序
-    const urls = names.map(n => `${camHost}${n}`);
-    photoUrls = urls;
-    if (photoUrls.length > 0) renderPhotos();
-  } catch(e) {
-    // ESP32-CAM 不在线或不在同局域网，静默忽略
-  }
+    if (resp.ok) {
+      const names = await resp.json();
+      photoUrls = names.map(n => `${camHost}${n}`);
+      if (photoUrls.length > 0) { renderPhotos(); return; }
+    }
+  } catch(e) { /* 混合内容拦截，走方法 2 */ }
+
+  // 方法 2: Image 逐个探测（HTTPS 页面也能用）
+  const results = await Promise.allSettled(
+    Array.from({length:10}, (_, slot) => new Promise((resolve, reject) => {
+      const url = `${camHost}/photo_${slot}.jpg`;
+      const img = new Image();
+      const t = setTimeout(() => { img.src = ''; reject(); }, 2000);
+      img.onload  = () => { clearTimeout(t); resolve(url); };
+      img.onerror = () => { clearTimeout(t); reject(); };
+      img.src = url;
+    }))
+  );
+  photoUrls = results
+    .filter(r => r.status === 'fulfilled')
+    .map(r => r.value)
+    .sort((a, b) => {
+      // 按文件名数字排序
+      const na = parseInt(a.match(/photo_(\d+)/)[1]);
+      const nb = parseInt(b.match(/photo_(\d+)/)[1]);
+      return na - nb;
+    });
+  if (photoUrls.length > 0) renderPhotos();
 }
 
 // ── MQTT 连接 ──
@@ -282,4 +303,3 @@ initTimePickers();
 </script>
 </body>
 </html>
-
