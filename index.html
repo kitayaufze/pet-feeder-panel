@@ -112,47 +112,13 @@ const TOPIC_PHOTO_URL = `esp32/${DEV_CAM}/status/photo_url`;
 const TOPIC_CMD_FEED   = `esp32/${DEV_MAIN}/cmd/feed`;
 const TOPIC_CMD_SCHED  = `esp32/${DEV_MAIN}/cmd/schedule`;
 const TOPIC_CMD_PHOTO  = `esp32/${DEV_MAIN}/cmd/photo`;
+const TOPIC_PHOTO_LIST = `esp32/${DEV_CAM}/status/photo_list`;
+const TOPIC_CMD_LIST   = `esp32/${DEV_CAM}/cmd/list_photos`;
 
 // ── 状态 ──
 let currentSchedule = [];
 let photoUrls = [];
 let currentPhotoIdx = 0;
-
-// ── 页面加载：从 ESP32-CAM 恢复照片 ──
-async function loadExistingPhotos() {
-  const camHost = `http://192.168.43.122`;
-  // 方法 1: fetch /list.json（仅本地 HTTP 打开网页时有效）
-  try {
-    const resp = await fetch(`${camHost}/list.json`);
-    if (resp.ok) {
-      const names = await resp.json();
-      photoUrls = names.map(n => `${camHost}${n}`);
-      if (photoUrls.length > 0) { renderPhotos(); return; }
-    }
-  } catch(e) { /* 混合内容拦截，走方法 2 */ }
-
-  // 方法 2: Image 逐个探测（HTTPS 页面也能用）
-  const results = await Promise.allSettled(
-    Array.from({length:10}, (_, slot) => new Promise((resolve, reject) => {
-      const url = `${camHost}/photo_${slot}.jpg`;
-      const img = new Image();
-      const t = setTimeout(() => { img.src = ''; reject(); }, 2000);
-      img.onload  = () => { clearTimeout(t); resolve(url); };
-      img.onerror = () => { clearTimeout(t); reject(); };
-      img.src = url;
-    }))
-  );
-  photoUrls = results
-    .filter(r => r.status === 'fulfilled')
-    .map(r => r.value)
-    .sort((a, b) => {
-      // 按文件名数字排序
-      const na = parseInt(a.match(/photo_(\d+)/)[1]);
-      const nb = parseInt(b.match(/photo_(\d+)/)[1]);
-      return na - nb;
-    });
-  if (photoUrls.length > 0) renderPhotos();
-}
 
 // ── MQTT 连接 ──
 const client = mqtt.connect(`wss://${BROKER}:${PORT_WSS}/mqtt`, {
@@ -164,9 +130,9 @@ const client = mqtt.connect(`wss://${BROKER}:${PORT_WSS}/mqtt`, {
 
 client.on('connect', () => {
   document.getElementById('mqttStatus').innerHTML = '<span class="connected">● 已连接</span>';
-  client.subscribe([TOPIC_WEIGHT, TOPIC_FEED_RES, TOPIC_SCHEDULE, TOPIC_ONLINE, TOPIC_PHOTO_URL]);
-  // 加载时同步 ESP32-CAM 上已有的照片（仅局域网内有效）
-  loadExistingPhotos();
+  client.subscribe([TOPIC_WEIGHT, TOPIC_FEED_RES, TOPIC_SCHEDULE, TOPIC_ONLINE, TOPIC_PHOTO_URL, TOPIC_PHOTO_LIST]);
+  // 请求 ESP32-CAM 返回已有照片列表（通过 MQTT，无需 HTTP / 同局域网）
+  client.publish(TOPIC_CMD_LIST, '{}');
 });
 
 client.on('close', () => {
@@ -209,9 +175,23 @@ function handleMessage(topic, data) {
     renderSchedule();
   } else if (topic === TOPIC_PHOTO_URL) {
     if (data.ok && data.url) {
-      photoUrls.unshift(data.url);
-      if (photoUrls.length > 20) photoUrls.length = 20;
+      // 避免和 photo_list 加载的重复
+      if (!photoUrls.includes(data.url)) {
+        photoUrls.unshift(data.url);
+        if (photoUrls.length > 20) photoUrls.length = 20;
+      }
       renderPhotos();
+    }
+  } else if (topic === TOPIC_PHOTO_LIST) {
+    // ESP32-CAM 返回 FIFO 顺序的照片列表（老→新），反转后最新的在前
+    if (Array.isArray(data)) {
+      const existing = new Set(photoUrls);
+      data.reverse().forEach(url => {
+        if (!existing.has(url)) {
+          photoUrls.push(url);
+        }
+      });
+      if (photoUrls.length > 0) renderPhotos();
     }
   }
 }
