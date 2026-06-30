@@ -3,92 +3,274 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>宠物自动喂食 — 控制面板</title>
+<title>宠物自动喂食</title>
 <style>
-  :root { --bg: #f5f5f5; --card: #fff; --text: #333; --muted: #999; --accent: #1890ff; --danger: #ff4d4f; --green: #52c41a; }
+  :root {
+    --bg:      #F4EFE6;
+    --card:    #FFFCF6;
+    --border:  #E8DFD2;
+    --text:    #3D3226;
+    --muted:   #9B8C78;
+    --accent:  #C8803C;
+    --accent-hover: #B06E2E;
+    --green:   #5D9B63;
+    --danger:  #D4644E;
+    --photo:   #8E7DAA;
+    --photo-hover: #7A6B94;
+    --ring:    #E8D5BC;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 16px; max-width: 800px; margin: 0 auto; }
-  h1 { font-size: 20px; margin-bottom: 16px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .card { background: var(--card); border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-  .card.full { grid-column: 1/-1; }
-  .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-  .value { font-size: 28px; font-weight: 700; }
-  .value.small { font-size: 16px; font-weight: 500; }
-  .row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
-  input[type=range] { flex: 1; accent-color: var(--accent); }
-  button { border: none; border-radius: 6px; padding: 8px 18px; font-size: 14px; cursor: pointer; font-weight: 600; }
-  .btn-feed { background: var(--accent); color: #fff; width: 100%; padding: 12px; font-size: 16px; }
-  .btn-snap { background: #722ed1; color: #fff; width: 100%; padding: 10px; }
-  .btn-sched { background: #13c2c2; color: #fff; font-size: 12px; padding: 5px 12px; }
-  .btn-del { background: var(--danger); color: #fff; font-size: 11px; padding: 3px 8px; }
-  .btn-small { background: var(--accent); color: #fff; font-size: 11px; padding: 3px 10px; }
-  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
-  .dot.online { background: var(--green); }
-  .dot.offline { background: var(--danger); }
-  .photo img { width: 100%; border-radius: 6px; margin-top: 8px; }
-  .photo-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .photo-list img { width: 64px; height: 48px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
-  .photo-list img.active { border-color: var(--accent); }
-  .log { font-size: 11px; color: var(--muted); max-height: 120px; overflow-y: auto; background: #fafafa; padding: 8px; border-radius: 6px; margin-top: 8px; }
-  .log div { margin: 2px 0; }
-  .schedule-item { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 13px; }
-  .schedule-item span { min-width: 80px; }
-  .connected { color: var(--green); }
-  .disconnected { color: var(--danger); }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── 顶部导航条 ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(244,239,230,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar h1 {
+    font-size: 17px; font-weight: 620;
+    letter-spacing: -0.2px;
+  }
+  .topbar .status-row {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 12px; color: var(--muted);
+  }
+  .pulse {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 5px; vertical-align: middle; position: relative;
+  }
+  .pulse.live { background: var(--green); }
+  .pulse.dead { background: var(--danger); }
+  .pulse.live::after {
+    content: ''; position: absolute;
+    inset: -3px; border-radius: 50%;
+    border: 1.5px solid var(--green);
+    animation: breathe 2s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.3; transform: scale(1.6); }
+  }
+
+  /* ── 主内容区 ── */
+  .main { max-width: 600px; margin: 0 auto; padding: 16px 16px 48px; }
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── 称重双卡片 ── */
+  .weights { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .weight-card {
+    text-align: center;
+    padding: 28px 16px 22px;
+  }
+  .weight-card .ring {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 3px solid var(--ring);
+    margin-bottom: 12px;
+  }
+  .weight-card .ring .num {
+    font-size: 30px; font-weight: 680;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .weight-card .ring .unit {
+    font-size: 14px; font-weight: 500;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+  .weight-card .lbl {
+    font-size: 13px; color: var(--muted);
+    font-weight: 500; letter-spacing: 0.3px;
+  }
+
+  /* ── 喂食区 ── */
+  .feed-slider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 8px 0 14px;
+  }
+  .feed-slider .grams-display {
+    font-size: 36px; font-weight: 680;
+    font-feature-settings: "tnum";
+    min-width: 64px; text-align: center;
+    line-height: 1;
+  }
+  .feed-slider .grams-display .unit {
+    font-size: 16px; font-weight: 500; color: var(--muted);
+  }
+  .feed-slider input[type=range] {
+    flex: 1; accent-color: var(--accent);
+    height: 6px;
+  }
+
+  /* ── 按钮 ── */
+  button {
+    border: none; border-radius: 10px;
+    font-family: inherit; font-weight: 600; font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  }
+  button:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    width: 100%; padding: 13px; font-size: 16px;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-photo {
+    background: var(--photo); color: #fff;
+    width: 100%; padding: 11px; font-size: 15px;
+  }
+  .btn-photo:hover { background: var(--photo-hover); }
+  .btn-sm  { font-size: 12px; padding: 5px 14px; border-radius: 7px; }
+  .btn-del {
+    background: none; color: var(--danger);
+    font-size: 13px; padding: 2px 6px; border-radius: 5px;
+  }
+  .btn-del:hover { background: #fef2f0; }
+
+  /* ── 喂食日志 ── */
+  .feed-log {
+    margin-top: 12px;
+    font-size: 12px; color: var(--muted);
+    max-height: 100px; overflow-y: auto;
+    background: #FAF6F0; border-radius: 8px; padding: 10px;
+  }
+  .feed-log .entry { padding: 2px 0; border-bottom: 1px solid #f0e8d8; }
+  .feed-log .entry:last-child { border-bottom: none; }
+
+  /* ── 照片区 ── */
+  .photo-main img {
+    width: 100%; border-radius: 10px;
+    display: block;
+    background: #f0e8d8;
+  }
+  .photo-main .placeholder {
+    height: 200px; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 14px;
+    background: #FAF6F0; border-radius: 10px;
+    border: 1.5px dashed var(--border);
+  }
+  .photo-strip {
+    display: flex; gap: 6px; margin-top: 10px;
+    overflow-x: auto; padding-bottom: 4px;
+  }
+  .photo-strip img {
+    width: 72px; height: 54px; object-fit: cover;
+    border-radius: 6px; cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.7; transition: opacity 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .photo-strip img:hover { opacity: 0.9; }
+  .photo-strip img.active { border-color: var(--accent); opacity: 1; }
+
+  /* ── 定时计划 ── */
+  .schedule-entry {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; font-size: 14px;
+  }
+  .schedule-entry .time-slot { font-weight: 600; min-width: 72px; }
+  .schedule-controls {
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+  .schedule-controls select, .schedule-controls input {
+    padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 7px; font-size: 13px;
+    font-family: inherit; background: var(--card); color: var(--text);
+  }
+  .schedule-controls input { width: 52px; }
+
+  .section-label {
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--muted);
+    margin-bottom: 10px; font-weight: 600;
+  }
+
+  @media (max-width: 420px) {
+    .weights { grid-template-columns: 1fr; }
+    .topbar { padding: 10px 14px; }
+    .main { padding: 10px; }
+  }
 </style>
 </head>
 <body>
 
-<h1>🐱 宠物自动喂食控制面板</h1>
-
-<div style="margin-bottom:12px;">
-  状态：<span id="mqttStatus" class="disconnected">● 未连接</span>
-  &nbsp;|&nbsp; 设备：<span id="deviceStatus" class="dot offline"></span><span id="deviceLabel">等待上线</span>
+<!-- ── 顶栏 ── -->
+<div class="topbar">
+  <h1>🐾 宠物喂食</h1>
+  <div class="status-row">
+    <span><span id="dotMqtt" class="pulse dead"></span><span id="labelMqtt">断开</span></span>
+    <span><span id="dotDev" class="pulse dead"></span><span id="labelDev">离线</span></span>
+  </div>
 </div>
 
-<div class="grid">
+<div class="main">
 
   <!-- 称重 -->
-  <div class="card">
-    <div class="label">粮仓余量</div>
-    <div class="value" id="weightBin">--.- g</div>
-  </div>
-  <div class="card">
-    <div class="label">食盆重量</div>
-    <div class="value" id="weightBowl">--.- g</div>
+  <div class="weights">
+    <div class="card weight-card">
+      <div class="ring"><span class="num" id="valBin">--</span><span class="unit">g</span></div>
+      <div class="lbl">粮仓余量</div>
+    </div>
+    <div class="card weight-card">
+      <div class="ring"><span class="num" id="valBowl">--</span><span class="unit">g</span></div>
+      <div class="lbl">食盆重量</div>
+    </div>
   </div>
 
   <!-- 手动喂食 -->
-  <div class="card full">
-    <div class="label">手动喂食</div>
-    <div class="row">
-      <span id="gramsLabel" style="font-weight:700;min-width:40px">50g</span>
-      <input type="range" id="gramsSlider" min="5" max="200" value="50" step="5" oninput="updateGrams()">
+  <div class="card">
+    <div class="section-label">手动喂食</div>
+    <div class="feed-slider">
+      <div class="grams-display"><span id="gramNum">50</span><span class="unit">g</span></div>
+      <input type="range" id="gramSlider" min="5" max="200" value="50" step="5" oninput="onSlider()">
     </div>
-    <button class="btn-feed" onclick="sendFeed()">🍖 立即喂食</button>
-    <div class="log" id="feedLog"><div>等待指令...</div></div>
+    <button class="btn-primary" onclick="doFeed()">立即喂食</button>
+    <div class="feed-log" id="feedLog"></div>
   </div>
 
   <!-- 拍照 -->
-  <div class="card full">
-    <div class="label">拍照 & 照片</div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn-snap" onclick="sendSnap()" style="flex:1">📷 拍一张</button>
+  <div class="card">
+    <div class="section-label">宠物相册</div>
+    <button class="btn-photo" onclick="doSnap()">拍一张照片</button>
+    <div style="margin-top:12px">
+      <div class="photo-main" id="photoMain">
+        <div class="placeholder">等待照片…</div>
+      </div>
+      <div class="photo-strip" id="photoStrip"></div>
     </div>
-    <div class="photo" id="photoArea"><p style="color:var(--muted);margin-top:8px">暂无照片</p></div>
-    <div class="photo-list" id="photoThumbs"></div>
   </div>
 
   <!-- 定时计划 -->
-  <div class="card full">
-    <div class="label">定时喂食计划</div>
-    <div id="scheduleList" style="margin:6px 0;font-size:13px;color:var(--muted)">加载中...</div>
-    <div class="row" style="gap:4px;">
-      <select id="schedHour" style="padding:4px;"></select>:<select id="schedMin" style="padding:4px;"></select>
-      <input type="number" id="schedGrams" value="30" min="5" max="200" style="width:56px;padding:4px;">g
-      <button class="btn-sched" onclick="addSchedule()">+</button>
-      <button class="btn-small" onclick="saveSchedule()">💾 保存</button>
+  <div class="card">
+    <div class="section-label">定时计划</div>
+    <div id="schedList" style="min-height:24px;font-size:13px;color:var(--muted)"></div>
+    <div class="schedule-controls">
+      <select id="schedH"></select>
+      <span>:</span>
+      <select id="schedM"></select>
+      <input type="number" id="schedG" value="30" min="5" max="200" placeholder="g">
+      <button class="btn-sm btn-primary" onclick="schedAdd()" style="padding:5px 16px;">+</button>
+      <button class="btn-sm" onclick="schedSave()" style="background:var(--border);color:var(--text)">保存</button>
     </div>
   </div>
 
@@ -97,189 +279,162 @@
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script>
 // ── 配置 ──
-const BROKER  = 'n15ed731.ala.cn-hangzhou.emqxsl.cn';
-const PORT_WSS = 8084;
-const USER    = 'ESP32';
-const PASS    = '123qweasd';
-const DEV_MAIN = '2EE3A0';
-const DEV_CAM  = 'F82C9C';
-
-const TOPIC_WEIGHT    = `esp32/${DEV_MAIN}/status/weight`;
-const TOPIC_FEED_RES  = `esp32/${DEV_MAIN}/status/feed_result`;
-const TOPIC_SCHEDULE  = `esp32/${DEV_MAIN}/status/schedule`;
-const TOPIC_ONLINE    = `esp32/${DEV_MAIN}/status/online`;
-const TOPIC_PHOTO_URL = `esp32/${DEV_CAM}/status/photo_url`;
-const TOPIC_CMD_FEED   = `esp32/${DEV_MAIN}/cmd/feed`;
-const TOPIC_CMD_SCHED  = `esp32/${DEV_MAIN}/cmd/schedule`;
-const TOPIC_CMD_PHOTO  = `esp32/${DEV_MAIN}/cmd/photo`;
-const TOPIC_PHOTO_LIST = `esp32/${DEV_CAM}/status/photo_list`;
-const TOPIC_CMD_LIST   = `esp32/${DEV_CAM}/cmd/list_photos`;
+const C = {
+  broker:  'n15ed731.ala.cn-hangzhou.emqxsl.cn',
+  port:    8084,
+  user:   'ESP32',
+  pass:   '123qweasd',
+  dev:    '2EE3A0',
+  cam:    'F82C9C'
+};
+const T = {
+  weight:    `esp32/${C.dev}/status/weight`,
+  feedRes:   `esp32/${C.dev}/status/feed_result`,
+  sched:     `esp32/${C.dev}/status/schedule`,
+  online:    `esp32/${C.dev}/status/online`,
+  photoUrl:  `esp32/${C.cam}/status/photo_url`,
+  photoList: `esp32/${C.cam}/status/photo_list`,
+  feed:      `esp32/${C.dev}/cmd/feed`,
+  schedSet:  `esp32/${C.dev}/cmd/schedule`,
+  photoCmd:  `esp32/${C.dev}/cmd/photo`,
+  listCmd:   `esp32/${C.cam}/cmd/list_photos`
+};
+const $ = id => document.getElementById(id);
 
 // ── 状态 ──
-let currentSchedule = [];
-let photoUrls = [];
-let currentPhotoIdx = 0;
+let schedules = [];
+let photos = [];
+let photoIdx = 0;
 
-// ── MQTT 连接 ──
-const client = mqtt.connect(`wss://${BROKER}:${PORT_WSS}/mqtt`, {
-  username: USER,
-  password: PASS,
-  clientId: 'web_panel_' + Math.random().toString(16).slice(2, 10),
+// ── MQTT ──
+const mqtt = mqtt.connect(`wss://${C.broker}:${C.port}/mqtt`, {
+  username: C.user, password: C.pass,
+  clientId: 'panel_' + Math.random().toString(16).slice(2,10),
   clean: true
 });
 
-client.on('connect', () => {
-  document.getElementById('mqttStatus').innerHTML = '<span class="connected">● 已连接</span>';
-  client.subscribe([TOPIC_WEIGHT, TOPIC_FEED_RES, TOPIC_SCHEDULE, TOPIC_ONLINE, TOPIC_PHOTO_URL, TOPIC_PHOTO_LIST]);
-  // 请求 ESP32-CAM 返回已有照片列表（通过 MQTT，无需 HTTP / 同局域网）
-  client.publish(TOPIC_CMD_LIST, '{}');
+mqtt.on('connect', () => {
+  $('dotMqtt').className = 'pulse live';
+  $('labelMqtt').textContent = '已连接';
+  mqtt.subscribe([T.weight, T.feedRes, T.sched, T.online, T.photoUrl, T.photoList]);
+  mqtt.publish(T.listCmd, '{}');
+});
+mqtt.on('close', () => {
+  $('dotMqtt').className = 'pulse dead';
+  $('labelMqtt').textContent = '断开';
 });
 
-client.on('close', () => {
-  document.getElementById('mqttStatus').innerHTML = '<span class="disconnected">● 断开，重连中...</span>';
-});
-
-client.on('message', (topic, payload) => {
-  const msg = payload.toString();
+mqtt.on('message', (topic, raw) => {
+  const s = raw.toString();
   try {
-    const data = JSON.parse(msg);
-    handleMessage(topic, data);
-  } catch (e) {
-    // 非 JSON（如 "online" / "offline" 字符串）
-    if (topic === TOPIC_ONLINE) {
-      if (msg === 'online') {
-        document.getElementById('deviceStatus').className = 'dot online';
-        document.getElementById('deviceLabel').textContent = '主ESP32 在线';
-      } else {
-        document.getElementById('deviceStatus').className = 'dot offline';
-        document.getElementById('deviceLabel').textContent = '主ESP32 离线';
-      }
+    const d = JSON.parse(s);
+    route(topic, d);
+  } catch (_) {
+    if (topic === T.online) {
+      setDev(s === 'online');
     }
   }
 });
 
-function handleMessage(topic, data) {
-  if (topic === TOPIC_WEIGHT) {
-    document.getElementById('weightBin').textContent = data.bin.toFixed(1) + ' g';
-    document.getElementById('weightBowl').textContent = data.bowl.toFixed(1) + ' g';
-  } else if (topic === TOPIC_FEED_RES) {
-    const div = document.getElementById('feedLog');
-    const time = new Date().toLocaleTimeString();
-    div.innerHTML += `<div>[${time}] 喂食 ${data.dispensed}g / 目标 ${data.target}g ${data.ok ? '✅' : '❌'}</div>`;
-    div.scrollTop = div.scrollHeight;
-  } else if (topic === TOPIC_SCHEDULE) {
-    currentSchedule = (data.times || []).map(s => {
-      const parts = s.split(':');
-      return { hour: parts[0], min: parts[1], grams: parts[2] };
+function setDev(on) {
+  $('dotDev').className = on ? 'pulse live' : 'pulse dead';
+  $('labelDev').textContent = on ? '在线' : '离线';
+}
+
+function route(t, d) {
+  if (t === T.weight) {
+    $('valBin').textContent = d.bin.toFixed(0);
+    $('valBowl').textContent = d.bowl.toFixed(0);
+  } else if (t === T.feedRes) {
+    const el = $('feedLog');
+    const now = new Date().toLocaleTimeString();
+    el.innerHTML += `<div class="entry">${now} · 喂食 ${d.dispensed}g / ${d.target}g ${d.ok ? '✓' : '✗'}</div>`;
+    el.scrollTop = el.scrollHeight;
+    if (el.children.length > 30) el.removeChild(el.firstChild);
+  } else if (t === T.sched) {
+    schedules = (d.times || []).map(s => {
+      const p = s.split(':');
+      return { h: +p[0], m: +p[1], g: +p[2] };
     });
-    renderSchedule();
-  } else if (topic === TOPIC_PHOTO_URL) {
-    if (data.ok && data.url) {
-      // 避免和 photo_list 加载的重复
-      if (!photoUrls.includes(data.url)) {
-        photoUrls.unshift(data.url);
-        if (photoUrls.length > 20) photoUrls.length = 20;
-      }
+    renderSched();
+  } else if (t === T.photoUrl) {
+    if (d.ok && d.url && !photos.includes(d.url)) {
+      photos.unshift(d.url);
+      if (photos.length > 20) photos.length = 20;
       renderPhotos();
     }
-  } else if (topic === TOPIC_PHOTO_LIST) {
-    // ESP32-CAM 返回 FIFO 顺序的照片列表（老→新），反转后最新的在前
-    if (Array.isArray(data)) {
-      const existing = new Set(photoUrls);
-      data.reverse().forEach(url => {
-        if (!existing.has(url)) {
-          photoUrls.push(url);
-        }
-      });
-      if (photoUrls.length > 0) renderPhotos();
+  } else if (t === T.photoList) {
+    if (Array.isArray(d)) {
+      const seen = new Set(photos);
+      d.reverse().forEach(u => { if (!seen.has(u)) photos.push(u); });
+      if (photos.length) renderPhotos();
     }
   }
 }
 
 // ── 喂食 ──
-function updateGrams() {
-  const v = document.getElementById('gramsSlider').value;
-  document.getElementById('gramsLabel').textContent = v + 'g';
+function onSlider() {
+  $('gramNum').textContent = $('gramSlider').value;
 }
-function sendFeed() {
-  const g = parseInt(document.getElementById('gramsSlider').value);
-  client.publish(TOPIC_CMD_FEED, JSON.stringify({ grams: g }));
-  const div = document.getElementById('feedLog');
-  div.innerHTML += `<div>[${new Date().toLocaleTimeString()}] 已发送: ${g}g ⏳</div>`;
-  div.scrollTop = div.scrollHeight;
+function doFeed() {
+  const g = +$('gramSlider').value;
+  mqtt.publish(T.feed, JSON.stringify({grams:g}));
+  const el = $('feedLog');
+  el.innerHTML += `<div class="entry">${new Date().toLocaleTimeString()} · 已发送 ${g}g</div>`;
+  el.scrollTop = el.scrollHeight;
 }
 
 // ── 拍照 ──
-function sendSnap() {
-  client.publish(TOPIC_CMD_PHOTO, JSON.stringify({ action: 'snap' }));
+function doSnap() {
+  mqtt.publish(T.photoCmd, JSON.stringify({action:'snap'}));
 }
-
-// ── 照片显示 ──
 function renderPhotos() {
-  const area = document.getElementById('photoArea');
-  const thumbs = document.getElementById('photoThumbs');
-  if (photoUrls.length === 0) return;
-  currentPhotoIdx = 0;
-  area.innerHTML = `<img src="${photoUrls[0]}" alt="最新照片">`;
-  thumbs.innerHTML = photoUrls.slice(0, 10).map((url, i) =>
-    `<img src="${url}" class="${i===0?'active':''}" onclick="showPhoto(${i})">`
+  const main = $('photoMain');
+  const strip = $('photoStrip');
+  photoIdx = 0;
+  main.innerHTML = `<img src="${photos[0]}" alt="照片" onerror="this.parentElement.innerHTML='<div class=placeholder>加载失败</div>'">`;
+  strip.innerHTML = photos.slice(0,10).map((u,i) =>
+    `<img src="${u}" class="${i===0?'active':''}" onclick="showPhoto(${i})" loading="lazy" onerror="this.remove()">`
   ).join('');
 }
-function showPhoto(idx) {
-  currentPhotoIdx = idx;
-  document.getElementById('photoArea').innerHTML = `<img src="${photoUrls[idx]}" alt="照片">`;
-  const imgs = document.querySelectorAll('.photo-list img');
-  imgs.forEach((el, i) => el.className = i === idx ? 'active' : '');
+function showPhoto(i) {
+  photoIdx = i;
+  $('photoMain').innerHTML = `<img src="${photos[i]}" alt="照片">`;
+  [...$('photoStrip').children].forEach((el,j) => el.className = j===i?'active':'');
 }
 
-// ── 定时计划 ──
-function renderSchedule() {
-  const el = document.getElementById('scheduleList');
-  if (currentSchedule.length === 0) {
-    el.innerHTML = '暂无计划';
-    return;
-  }
-  el.innerHTML = currentSchedule.map((s, i) =>
-    `<div class="schedule-item">
-      <span>⏰ ${s.hour}:${s.min}</span> → ${s.grams}g
-      <button class="btn-del" onclick="removeSchedule(${i})">✕</button>
+// ── 定时 ──
+function renderSched() {
+  const el = $('schedList');
+  if (!schedules.length) { el.textContent = '暂无计划'; return; }
+  el.innerHTML = schedules.map((s,i) =>
+    `<div class="schedule-entry">
+      <span class="time-slot">${String(s.h).padStart(2,'0')}:${String(s.m).padStart(2,'0')}</span>
+      <span>${s.g}g</span>
+      <button class="btn-del" onclick="schedDel(${i})">✕</button>
     </div>`
   ).join('');
 }
-
-function addSchedule() {
-  const h = document.getElementById('schedHour').value;
-  const m = document.getElementById('schedMin').value;
-  const g = document.getElementById('schedGrams').value;
-  if (currentSchedule.length >= 5) { alert('最多 5 条'); return; }
-  currentSchedule.push({ hour: h, min: m, grams: g });
-  currentSchedule.sort((a, b) => a.hour*60+a.min - b.hour*60-b.min);
-  renderSchedule();
+function schedAdd() {
+  const h = $('schedH').value, m = $('schedM').value, g = +$('schedG').value;
+  if (schedules.length >= 5) { alert('最多 5 条'); return; }
+  schedules.push({ h: +h, m: +m, g });
+  schedules.sort((a,b) => a.h*60+a.m - b.h*60-b.m);
+  renderSched();
 }
-function removeSchedule(i) { currentSchedule.splice(i, 1); renderSchedule(); }
-function saveSchedule() {
-  const times = currentSchedule.map(s => `${s.hour}:${s.min}:${s.grams}`);
-  client.publish(TOPIC_CMD_SCHED, JSON.stringify({ times }));
+function schedDel(i) { schedules.splice(i,1); renderSched(); }
+function schedSave() {
+  mqtt.publish(T.schedSet, JSON.stringify({times: schedules.map(s =>
+    `${String(s.h).padStart(2,'0')}:${String(s.m).padStart(2,'0')}:${s.g}`
+  )}));
 }
 
-// ── 时间选择器初始化 ──
-function initTimePickers() {
-  const hSel = document.getElementById('schedHour');
-  const mSel = document.getElementById('schedMin');
-  for (let h = 0; h < 24; h++) {
-    const o = document.createElement('option');
-    o.value = String(h).padStart(2, '0');
-    o.text = String(h).padStart(2, '0') + ' 时';
-    hSel.appendChild(o);
-  }
-  for (let m = 0; m < 60; m += 5) {
-    const o = document.createElement('option');
-    o.value = String(m).padStart(2, '0');
-    o.text = String(m).padStart(2, '0') + ' 分';
-    mSel.appendChild(o);
-  }
-}
-initTimePickers();
+// ── 时间选择器 ──
+(function() {
+  const hSel = $('schedH'), mSel = $('schedM');
+  for (let h=0;h<24;h++) { const o=document.createElement('option'); o.value=o.text=String(h).padStart(2,'0'); hSel.appendChild(o); }
+  for (let m=0;m<60;m+=5) { const o=document.createElement('option'); o.value=o.text=String(m).padStart(2,'0'); mSel.appendChild(o); }
+})();
 </script>
 </body>
 </html>
