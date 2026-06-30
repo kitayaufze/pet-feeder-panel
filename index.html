@@ -25,10 +25,8 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0;
   }
 
-  /* ── 顶部导航条 ── */
   .topbar {
     position: sticky; top: 0; z-index: 10;
     background: rgba(244,239,230,0.92);
@@ -38,18 +36,9 @@
     display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--border);
   }
-  .topbar h1 {
-    font-size: 17px; font-weight: 620;
-    letter-spacing: -0.2px;
-  }
-  .topbar .status-row {
-    display: flex; align-items: center; gap: 16px;
-    font-size: 12px; color: var(--muted);
-  }
-  .pulse {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-    margin-right: 5px; vertical-align: middle; position: relative;
-  }
+  .topbar h1 { font-size: 17px; font-weight: 620; letter-spacing: -0.2px; }
+  .topbar .status-row { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--muted); }
+  .pulse { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; position: relative; }
   .pulse.live { background: var(--green); }
   .pulse.dead { background: var(--danger); }
   .pulse.live::after {
@@ -59,151 +48,61 @@
     animation: breathe 2s ease-in-out infinite;
   }
   @keyframes breathe {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: 0.3; transform: scale(1.6); }
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.3;transform:scale(1.6)}
   }
 
-  /* ── 主内容区 ── */
   .main { max-width: 600px; margin: 0 auto; padding: 16px 16px 48px; }
-  .card {
-    background: var(--card);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border);
-  }
+  .card { background: var(--card); border-radius: 14px; padding: 20px; margin-bottom: 12px; border: 1px solid var(--border); }
 
-  /* ── 称重双卡片 ── */
   .weights { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .weight-card {
-    text-align: center;
-    padding: 28px 16px 22px;
-  }
+  .weight-card { text-align: center; padding: 28px 16px 22px; }
   .weight-card .ring {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 96px; height: 96px;
-    border-radius: 50%;
-    border: 3px solid var(--ring);
-    margin-bottom: 12px;
+    width: 96px; height: 96px; border-radius: 50%;
+    border: 3px solid var(--ring); margin-bottom: 12px;
   }
-  .weight-card .ring .num {
-    font-size: 30px; font-weight: 680;
-    font-feature-settings: "tnum";
-    letter-spacing: -0.5px;
-    line-height: 1;
-  }
-  .weight-card .ring .unit {
-    font-size: 14px; font-weight: 500;
-    color: var(--muted);
-    margin-left: 2px;
-  }
-  .weight-card .lbl {
-    font-size: 13px; color: var(--muted);
-    font-weight: 500; letter-spacing: 0.3px;
-  }
+  .weight-card .ring .num { font-size: 30px; font-weight: 680; font-feature-settings:"tnum"; letter-spacing: -0.5px; line-height: 1; }
+  .weight-card .ring .unit { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .weight-card .lbl { font-size: 13px; color: var(--muted); font-weight: 500; letter-spacing: 0.3px; }
 
-  /* ── 喂食区 ── */
-  .feed-slider {
-    display: flex; align-items: center; gap: 12px;
-    margin: 8px 0 14px;
-  }
-  .feed-slider .grams-display {
-    font-size: 36px; font-weight: 680;
-    font-feature-settings: "tnum";
-    min-width: 64px; text-align: center;
-    line-height: 1;
-  }
-  .feed-slider .grams-display .unit {
-    font-size: 16px; font-weight: 500; color: var(--muted);
-  }
-  .feed-slider input[type=range] {
-    flex: 1; accent-color: var(--accent);
-    height: 6px;
-  }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
 
-  /* ── 按钮 ── */
-  button {
-    border: none; border-radius: 10px;
-    font-family: inherit; font-weight: 600; font-size: 15px;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-  }
+  .feed-slider { display: flex; align-items: center; gap: 12px; margin: 8px 0 14px; }
+  .feed-slider .grams-display { font-size: 36px; font-weight: 680; font-feature-settings:"tnum"; min-width: 64px; text-align: center; line-height: 1; }
+  .feed-slider .grams-display .unit { font-size: 16px; font-weight: 500; color: var(--muted); }
+  .feed-slider input[type=range] { flex: 1; accent-color: var(--accent); height: 6px; }
+
+  button { border: none; border-radius: 10px; font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer; transition: background 0.15s, transform 0.1s, box-shadow 0.15s; }
   button:active { transform: scale(0.97); }
-  .btn-primary {
-    background: var(--accent); color: #fff;
-    width: 100%; padding: 13px; font-size: 16px;
-  }
+  .btn-primary { background: var(--accent); color: #fff; width: 100%; padding: 13px; font-size: 16px; }
   .btn-primary:hover { background: var(--accent-hover); }
-  .btn-photo {
-    background: var(--photo); color: #fff;
-    width: 100%; padding: 11px; font-size: 15px;
-  }
+  .btn-photo { background: var(--photo); color: #fff; width: 100%; padding: 11px; font-size: 15px; }
   .btn-photo:hover { background: var(--photo-hover); }
-  .btn-sm  { font-size: 12px; padding: 5px 14px; border-radius: 7px; }
-  .btn-del {
-    background: none; color: var(--danger);
-    font-size: 13px; padding: 2px 6px; border-radius: 5px;
-  }
+  .btn-sm { font-size: 12px; padding: 5px 14px; border-radius: 7px; }
+  .btn-del { background: none; color: var(--danger); font-size: 13px; padding: 2px 6px; border-radius: 5px; }
   .btn-del:hover { background: #fef2f0; }
 
-  /* ── 喂食日志 ── */
   .feed-log {
-    margin-top: 12px;
-    font-size: 12px; color: var(--muted);
+    margin-top: 12px; font-size: 12px; color: var(--muted);
     max-height: 100px; overflow-y: auto;
     background: #FAF6F0; border-radius: 8px; padding: 10px;
   }
   .feed-log .entry { padding: 2px 0; border-bottom: 1px solid #f0e8d8; }
   .feed-log .entry:last-child { border-bottom: none; }
 
-  /* ── 照片区 ── */
-  .photo-main img {
-    width: 100%; border-radius: 10px;
-    display: block;
-    background: #f0e8d8;
-  }
-  .photo-main .placeholder {
-    height: 200px; display: flex; align-items: center; justify-content: center;
-    color: var(--muted); font-size: 14px;
-    background: #FAF6F0; border-radius: 10px;
-    border: 1.5px dashed var(--border);
-  }
-  .photo-strip {
-    display: flex; gap: 6px; margin-top: 10px;
-    overflow-x: auto; padding-bottom: 4px;
-  }
-  .photo-strip img {
-    width: 72px; height: 54px; object-fit: cover;
-    border-radius: 6px; cursor: pointer;
-    border: 2px solid transparent;
-    opacity: 0.7; transition: opacity 0.15s, border-color 0.15s;
-    flex-shrink: 0;
-  }
+  .photo-main img { width: 100%; border-radius: 10px; display: block; background: #f0e8d8; }
+  .photo-main .placeholder { height: 200px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; background: #FAF6F0; border-radius: 10px; border: 1.5px dashed var(--border); }
+  .photo-strip { display: flex; gap: 6px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
+  .photo-strip img { width: 72px; height: 54px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; opacity: 0.7; transition: opacity 0.15s, border-color 0.15s; flex-shrink: 0; }
   .photo-strip img:hover { opacity: 0.9; }
   .photo-strip img.active { border-color: var(--accent); opacity: 1; }
 
-  /* ── 定时计划 ── */
-  .schedule-entry {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 0; font-size: 14px;
-  }
+  .schedule-entry { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
   .schedule-entry .time-slot { font-weight: 600; min-width: 72px; }
-  .schedule-controls {
-    display: flex; align-items: center; gap: 5px;
-    margin-top: 10px; flex-wrap: wrap;
-  }
-  .schedule-controls select, .schedule-controls input {
-    padding: 6px 8px; border: 1px solid var(--border);
-    border-radius: 7px; font-size: 13px;
-    font-family: inherit; background: var(--card); color: var(--text);
-  }
+  .schedule-controls { display: flex; align-items: center; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+  .schedule-controls select, .schedule-controls input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; font-family: inherit; background: var(--card); color: var(--text); }
   .schedule-controls input { width: 52px; }
-
-  .section-label {
-    font-size: 11px; text-transform: uppercase;
-    letter-spacing: 0.6px; color: var(--muted);
-    margin-bottom: 10px; font-weight: 600;
-  }
 
   @media (max-width: 420px) {
     .weights { grid-template-columns: 1fr; }
@@ -214,7 +113,6 @@
 </head>
 <body>
 
-<!-- ── 顶栏 ── -->
 <div class="topbar">
   <h1>🐾 宠物喂食</h1>
   <div class="status-row">
@@ -225,7 +123,6 @@
 
 <div class="main">
 
-  <!-- 称重 -->
   <div class="weights">
     <div class="card weight-card">
       <div class="ring"><span class="num" id="valBin">--</span><span class="unit">g</span></div>
@@ -237,37 +134,30 @@
     </div>
   </div>
 
-  <!-- 手动喂食 -->
   <div class="card">
     <div class="section-label">手动喂食</div>
     <div class="feed-slider">
       <div class="grams-display"><span id="gramNum">50</span><span class="unit">g</span></div>
-      <input type="range" id="gramSlider" min="5" max="200" value="50" step="5" oninput="onSlider()">
+      <input type="range" id="gramSlider" min="5" max="200" value="50" step="5" oninput="$('gramNum').textContent=this.value">
     </div>
     <button class="btn-primary" onclick="doFeed()">立即喂食</button>
     <div class="feed-log" id="feedLog"></div>
   </div>
 
-  <!-- 拍照 -->
   <div class="card">
     <div class="section-label">宠物相册</div>
-    <button class="btn-photo" onclick="doSnap()">拍一张照片</button>
+    <button class="btn-photo" onclick="client.publish(T.photoCmd,JSON.stringify({action:'snap'}))">拍一张照片</button>
     <div style="margin-top:12px">
-      <div class="photo-main" id="photoMain">
-        <div class="placeholder">等待照片…</div>
-      </div>
+      <div class="photo-main" id="photoMain"><div class="placeholder">等待照片…</div></div>
       <div class="photo-strip" id="photoStrip"></div>
     </div>
   </div>
 
-  <!-- 定时计划 -->
   <div class="card">
     <div class="section-label">定时计划</div>
     <div id="schedList" style="min-height:24px;font-size:13px;color:var(--muted)"></div>
     <div class="schedule-controls">
-      <select id="schedH"></select>
-      <span>:</span>
-      <select id="schedM"></select>
+      <select id="schedH"></select><span>:</span><select id="schedM"></select>
       <input type="number" id="schedG" value="30" min="5" max="200" placeholder="g">
       <button class="btn-sm btn-primary" onclick="schedAdd()" style="padding:5px 16px;">+</button>
       <button class="btn-sm" onclick="schedSave()" style="background:var(--border);color:var(--text)">保存</button>
@@ -278,163 +168,145 @@
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script>
-// ── 配置 ──
+(function(){
 const C = {
-  broker:  'n15ed731.ala.cn-hangzhou.emqxsl.cn',
-  port:    8084,
-  user:   'ESP32',
-  pass:   '123qweasd',
-  dev:    '2EE3A0',
-  cam:    'F82C9C'
+  broker:'n15ed731.ala.cn-hangzhou.emqxsl.cn', port:8084,
+  user:'ESP32', pass:'123qweasd',
+  dev:'2EE3A0', cam:'F82C9C'
 };
-const T = {
-  weight:    `esp32/${C.dev}/status/weight`,
-  feedRes:   `esp32/${C.dev}/status/feed_result`,
-  sched:     `esp32/${C.dev}/status/schedule`,
-  online:    `esp32/${C.dev}/status/online`,
-  photoUrl:  `esp32/${C.cam}/status/photo_url`,
-  photoList: `esp32/${C.cam}/status/photo_list`,
-  feed:      `esp32/${C.dev}/cmd/feed`,
-  schedSet:  `esp32/${C.dev}/cmd/schedule`,
-  photoCmd:  `esp32/${C.dev}/cmd/photo`,
-  listCmd:   `esp32/${C.cam}/cmd/list_photos`
+const TOP = {
+  weight:   `esp32/${C.dev}/status/weight`,
+  feedRes:  `esp32/${C.dev}/status/feed_result`,
+  sched:    `esp32/${C.dev}/status/schedule`,
+  online:   `esp32/${C.dev}/status/online`,
+  photoUrl: `esp32/${C.cam}/status/photo_url`,
+  photoList:`esp32/${C.cam}/status/photo_list`,
+  feed:     `esp32/${C.dev}/cmd/feed`,
+  schedSet: `esp32/${C.dev}/cmd/schedule`,
+  photoCmd: `esp32/${C.dev}/cmd/photo`,
+  listCmd:  `esp32/${C.cam}/cmd/list_photos`
 };
+window.T = TOP;
+window.client = null;
+
 const $ = id => document.getElementById(id);
+const el = {
+  mqttDot: $('dotMqtt'), mqttLabel: $('labelMqtt'),
+  devDot: $('dotDev'), devLabel: $('labelDev'),
+  bin: $('valBin'), bowl: $('valBowl'),
+  feedLog: $('feedLog'), gramSlider: $('gramSlider'), gramNum: $('gramNum'),
+  photoMain: $('photoMain'), photoStrip: $('photoStrip'),
+  schedList: $('schedList'), schedH: $('schedH'), schedM: $('schedM'), schedG: $('schedG')
+};
 
-// ── 状态 ──
-let schedules = [];
-let photos = [];
-let photoIdx = 0;
+let schedules = [], photos = [], photoIdx = 0;
 
-// ── MQTT ──
-const mqtt = mqtt.connect(`wss://${C.broker}:${C.port}/mqtt`, {
-  username: C.user, password: C.pass,
-  clientId: 'panel_' + Math.random().toString(16).slice(2,10),
-  clean: true
+const conn = window.mqtt.connect(`wss://${C.broker}:${C.port}/mqtt`,{
+  username:C.user, password:C.pass,
+  clientId:'pfd_' + Math.random().toString(16).slice(2,10), clean:true
 });
+window.client = conn;
 
-mqtt.on('connect', () => {
-  $('dotMqtt').className = 'pulse live';
-  $('labelMqtt').textContent = '已连接';
-  mqtt.subscribe([T.weight, T.feedRes, T.sched, T.online, T.photoUrl, T.photoList]);
-  mqtt.publish(T.listCmd, '{}');
+conn.on('connect', ()=>{
+  el.mqttDot.className = 'pulse live';
+  el.mqttLabel.textContent = '已连接';
+  conn.subscribe([TOP.weight,TOP.feedRes,TOP.sched,TOP.online,TOP.photoUrl,TOP.photoList]);
+  conn.publish(TOP.listCmd,'{}');
 });
-mqtt.on('close', () => {
-  $('dotMqtt').className = 'pulse dead';
-  $('labelMqtt').textContent = '断开';
+conn.on('close', ()=>{
+  el.mqttDot.className = 'pulse dead';
+  el.mqttLabel.textContent = '断开';
 });
-
-mqtt.on('message', (topic, raw) => {
-  const s = raw.toString();
+conn.on('message', (topic, raw)=>{
+  const s = typeof raw === 'string' ? raw : raw.toString();
+  const t = String(topic);
   try {
     const d = JSON.parse(s);
-    route(topic, d);
-  } catch (_) {
-    if (topic === T.online) {
-      setDev(s === 'online');
-    }
+    onMsg(t, d);
+  } catch(_) {
+    if (t === TOP.online) setDev(s === 'online');
   }
 });
 
-function setDev(on) {
-  $('dotDev').className = on ? 'pulse live' : 'pulse dead';
-  $('labelDev').textContent = on ? '在线' : '离线';
+function setDev(on){
+  el.devDot.className = on ? 'pulse live' : 'pulse dead';
+  el.devLabel.textContent = on ? '在线' : '离线';
 }
 
-function route(t, d) {
-  if (t === T.weight) {
-    $('valBin').textContent = d.bin.toFixed(0);
-    $('valBowl').textContent = d.bowl.toFixed(0);
-  } else if (t === T.feedRes) {
-    const el = $('feedLog');
+function onMsg(t, d){
+  if (t === TOP.weight) {
+    const b = Number(d.bin), w = Number(d.bowl);
+    if (!isNaN(b)) el.bin.textContent = b.toFixed(0);
+    if (!isNaN(w)) el.bowl.textContent = w.toFixed(0);
+  } else if (t === TOP.feedRes) {
     const now = new Date().toLocaleTimeString();
-    el.innerHTML += `<div class="entry">${now} · 喂食 ${d.dispensed}g / ${d.target}g ${d.ok ? '✓' : '✗'}</div>`;
-    el.scrollTop = el.scrollHeight;
-    if (el.children.length > 30) el.removeChild(el.firstChild);
-  } else if (t === T.sched) {
-    schedules = (d.times || []).map(s => {
-      const p = s.split(':');
-      return { h: +p[0], m: +p[1], g: +p[2] };
-    });
+    el.feedLog.innerHTML += `<div class="entry">${now} · 喂食 ${d.dispensed}g / ${d.target}g ${d.ok?'✓':'✗'}</div>`;
+    el.feedLog.scrollTop = el.feedLog.scrollHeight;
+    while (el.feedLog.children.length > 30) el.feedLog.removeChild(el.feedLog.firstChild);
+  } else if (t === TOP.sched) {
+    schedules = (d.times||[]).map(s=>{ const p=s.split(':'); return {h:+p[0],m:+p[1],g:+p[2]}; });
     renderSched();
-  } else if (t === T.photoUrl) {
+  } else if (t === TOP.photoUrl) {
     if (d.ok && d.url && !photos.includes(d.url)) {
       photos.unshift(d.url);
       if (photos.length > 20) photos.length = 20;
       renderPhotos();
     }
-  } else if (t === T.photoList) {
+  } else if (t === TOP.photoList) {
     if (Array.isArray(d)) {
       const seen = new Set(photos);
-      d.reverse().forEach(u => { if (!seen.has(u)) photos.push(u); });
+      d.reverse().forEach(u=>{ if(!seen.has(u)) photos.push(u); });
       if (photos.length) renderPhotos();
     }
   }
 }
 
-// ── 喂食 ──
-function onSlider() {
-  $('gramNum').textContent = $('gramSlider').value;
-}
-function doFeed() {
-  const g = +$('gramSlider').value;
-  mqtt.publish(T.feed, JSON.stringify({grams:g}));
-  const el = $('feedLog');
-  el.innerHTML += `<div class="entry">${new Date().toLocaleTimeString()} · 已发送 ${g}g</div>`;
-  el.scrollTop = el.scrollHeight;
-}
+window.doFeed = function(){
+  const g = +el.gramSlider.value;
+  conn.publish(TOP.feed, JSON.stringify({grams:g}));
+  el.feedLog.innerHTML += `<div class="entry">${new Date().toLocaleTimeString()} · 已发送 ${g}g</div>`;
+  el.feedLog.scrollTop = el.feedLog.scrollHeight;
+};
 
-// ── 拍照 ──
-function doSnap() {
-  mqtt.publish(T.photoCmd, JSON.stringify({action:'snap'}));
-}
-function renderPhotos() {
-  const main = $('photoMain');
-  const strip = $('photoStrip');
+function renderPhotos(){
   photoIdx = 0;
-  main.innerHTML = `<img src="${photos[0]}" alt="照片" onerror="this.parentElement.innerHTML='<div class=placeholder>加载失败</div>'">`;
-  strip.innerHTML = photos.slice(0,10).map((u,i) =>
-    `<img src="${u}" class="${i===0?'active':''}" onclick="showPhoto(${i})" loading="lazy" onerror="this.remove()">`
+  el.photoMain.innerHTML = `<img src="${photos[0]}" alt="照片">`;
+  el.photoStrip.innerHTML = photos.slice(0,10).map((u,i)=>
+    `<img src="${u}" class="${i===0?'active':''}" onclick="showPhoto(${i})" loading="lazy">`
   ).join('');
 }
-function showPhoto(i) {
+window.showPhoto = function(i){
   photoIdx = i;
-  $('photoMain').innerHTML = `<img src="${photos[i]}" alt="照片">`;
-  [...$('photoStrip').children].forEach((el,j) => el.className = j===i?'active':'');
-}
+  el.photoMain.innerHTML = `<img src="${photos[i]}" alt="照片">`;
+  [...el.photoStrip.children].forEach((x,j)=>x.className=j===i?'active':'');
+};
 
-// ── 定时 ──
-function renderSched() {
-  const el = $('schedList');
-  if (!schedules.length) { el.textContent = '暂无计划'; return; }
-  el.innerHTML = schedules.map((s,i) =>
-    `<div class="schedule-entry">
-      <span class="time-slot">${String(s.h).padStart(2,'0')}:${String(s.m).padStart(2,'0')}</span>
-      <span>${s.g}g</span>
-      <button class="btn-del" onclick="schedDel(${i})">✕</button>
-    </div>`
+function renderSched(){
+  if (!schedules.length) { el.schedList.textContent = '暂无计划'; return; }
+  el.schedList.innerHTML = schedules.map((s,i)=>
+    `<div class="schedule-entry"><span class="time-slot">${String(s.h).padStart(2,'0')}:${String(s.m).padStart(2,'0')}</span><span>${s.g}g</span><button class="btn-del" onclick="schedDel(${i})">✕</button></div>`
   ).join('');
 }
-function schedAdd() {
-  const h = $('schedH').value, m = $('schedM').value, g = +$('schedG').value;
-  if (schedules.length >= 5) { alert('最多 5 条'); return; }
-  schedules.push({ h: +h, m: +m, g });
-  schedules.sort((a,b) => a.h*60+a.m - b.h*60-b.m);
+window.schedAdd = function(){
+  if (schedules.length>=5){ alert('最多 5 条'); return; }
+  schedules.push({h:+el.schedH.value, m:+el.schedM.value, g:+el.schedG.value});
+  schedules.sort((a,b)=>a.h*60+a.m - b.h*60-b.m);
   renderSched();
-}
-function schedDel(i) { schedules.splice(i,1); renderSched(); }
-function schedSave() {
-  mqtt.publish(T.schedSet, JSON.stringify({times: schedules.map(s =>
+};
+window.schedDel = function(i){ schedules.splice(i,1); renderSched(); };
+window.schedSave = function(){
+  conn.publish(TOP.schedSet, JSON.stringify({times:schedules.map(s=>
     `${String(s.h).padStart(2,'0')}:${String(s.m).padStart(2,'0')}:${s.g}`
   )}));
-}
+};
 
-// ── 时间选择器 ──
-(function() {
-  const hSel = $('schedH'), mSel = $('schedM');
-  for (let h=0;h<24;h++) { const o=document.createElement('option'); o.value=o.text=String(h).padStart(2,'0'); hSel.appendChild(o); }
-  for (let m=0;m<60;m+=5) { const o=document.createElement('option'); o.value=o.text=String(m).padStart(2,'0'); mSel.appendChild(o); }
+(function(){
+  for (let h=0;h<24;h++){ const o=document.createElement('option'); o.value=o.text=String(h).padStart(2,'0'); el.schedH.appendChild(o); }
+  for (let m=0;m<60;m+=5){ const o=document.createElement('option'); o.value=o.text=String(m).padStart(2,'0'); el.schedM.appendChild(o); }
+})();
+
 })();
 </script>
 </body>
 </html>
+
